@@ -36,6 +36,26 @@ def test_add_new_user(setup_database, connection):
     user = cursor.fetchone()
     assert user, "Пользователь должен быть добавлен в базу данных."
 
+def test_add_user(setup_database, connection):
+    """Тест добавления пользователя с сущесвующим логином"""
+    add_user('testuser', 'user@example.com', 'password456')
+    add_user('testuser', 'user2@example.com', 'password123')
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(*) FROM users WHERE username='testuser';")
+    user = cursor.fetchone()
+    assert user[0] == 1, "должно быть 1 пользователя"
+
+def test_authenticate(setup_database, connection):
+    """тест регистрации"""
+    add_user('nonexistentuser', 'user3@example.com', 'password')
+    au = authenticate_user('nonexistentuser', 'password')
+    assert au, "должен зайти в аккаунт"
+
+def test_not_authenticate(setup_database, connection):
+    """тест регистрации"""
+    au = authenticate_user('nonexistentuser1', 'password')
+    assert not au, "не должен зайти в аккаунт"
+
 # Возможные варианты тестов:
 """
 Тест добавления пользователя с существующим логином.
